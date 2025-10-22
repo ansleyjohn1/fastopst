@@ -3,7 +3,6 @@ version: '3.8'
 services:
   # PostgreSQL for metadata storage
   postgres:
-    container_name: metadata-postgres
     image: postgres:15-alpine
     environment:
       POSTGRES_DB: metadata_store
@@ -18,12 +17,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - schema_sync_network
+
 
   # Etcd for Milvus
   etcd:
-    container_name: milvus-etcd
     image: quay.io/coreos/etcd:v3.5.5
     environment:
       - ETCD_AUTO_COMPACTION_MODE=revision
@@ -38,12 +35,10 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-    networks:
-      - schema_sync_network
+
 
   # MinIO for Milvus object storage
   minio:
-    container_name: milvus-minio
     image: minio/minio:RELEASE.2023-03-20T20-16-18Z
     environment:
       MINIO_ACCESS_KEY: minioadmin
@@ -59,12 +54,10 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-    networks:
-      - schema_sync_network
+
 
   # Milvus standalone
   milvus:
-    container_name: milvus-standalone
     image: milvusdb/milvus:v2.3.4
     command: ["milvus", "run", "standalone"]
     environment:
@@ -84,12 +77,10 @@ services:
     depends_on:
       - etcd
       - minio
-    networks:
-      - schema_sync_network
+
 
   # Attu - Milvus GUI
   attu:
-    container_name: milvus-attu
     image: zilliz/attu:v2.3.4
     environment:
       MILVUS_URL: milvus:19530
@@ -97,12 +88,10 @@ services:
       - "3000:3000"
     depends_on:
       - milvus
-    networks:
-      - schema_sync_network
+
 
   # FastAPI application
   api:
-    container_name: schema-sync-api
     build:
       context: .
       dockerfile: Dockerfile
@@ -120,12 +109,9 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      postgres:
-        condition: service_healthy
-      milvus:
-        condition: service_healthy
-    networks:
-      - schema_sync_network
+      - postgres
+      - milvus
+
     restart: unless-stopped
 
 volumes:
@@ -134,6 +120,3 @@ volumes:
   minio_data:
   milvus_data:
 
-networks:
-  schema_sync_network:
-    driver: bridge
