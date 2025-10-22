@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: metadata_store
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     ports:
       - "5432:5432"
     volumes:
@@ -83,7 +83,7 @@ services:
       METADATA_DB_PORT: 5432
       METADATA_DB_NAME: metadata_store
       METADATA_DB_USER: postgres
-      METADATA_DB_PASSWORD: password
+      METADATA_DB_PASSWORD: ${POSTGRES_PASSWORD:-password}
       
       # Milvus configuration
       MILVUS_HOST: milvus
@@ -101,5 +101,6 @@ volumes:
   etcd_data:
   minio_data:
   milvus_data:
+
 
 
