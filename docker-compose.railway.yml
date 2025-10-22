@@ -12,11 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    
 
 
   # Etcd for Milvus
@@ -30,11 +26,7 @@ services:
     volumes:
       - etcd_data:/etcd
     command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
-    healthcheck:
-      test: ["CMD", "etcdctl", "endpoint", "health"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+    
 
 
   # MinIO for Milvus object storage
@@ -49,11 +41,7 @@ services:
     volumes:
       - minio_data:/minio_data
     command: minio server /minio_data --console-address ":9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+    
 
 
   # Milvus standalone
@@ -65,12 +53,6 @@ services:
       MINIO_ADDRESS: minio:9000
     volumes:
       - milvus_data:/var/lib/milvus
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
-      interval: 30s
-      start_period: 90s
-      timeout: 20s
-      retries: 3
     ports:
       - "19530:19530"
       - "9091:9091"
@@ -119,4 +101,5 @@ volumes:
   etcd_data:
   minio_data:
   milvus_data:
+
 
